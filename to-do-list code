@@ -1,86 +1,77 @@
 # Importing required libraries
 import os
+def quicksort(items):
+    if len(items) <= 1:
+        return items
+    pivot = items[0]
+    left = []
+    right = []
+    for item in items[1:]:
+        if item < pivot:
+            left.append(item)
+        else:
+            right.append(item)
+    return quicksort(left) + [pivot] + quicksort(right)
 
-# Defining a function to show the to-do list
-def show_list():
-    # Open the file in read mode
-    with open("todo.txt", "r") as f:
-        # Read the file content
-        content = f.readlines()
-        # Print the content
-        for i in range(len(content)):
-            print(str(i+1) + ". " + content[i].strip())
+def display_tasks(tasks):
+    print("\nTo-Do List:\n")
+    for i in range(len(tasks)):
+        print(f"{i+1}. {tasks[i]}")
 
-# Defining a function to add tasks to the to-do list
-def add_task():
-    # Open the file in append mode
-    with open("todo.txt", "a") as f:
-        # Ask user for the task to be added
-        task = input("Enter the task: ")
-        # Write the task to the file
-        f.write(task + "\n")
-        # Print a confirmation message
-        print("Task added successfully!")
+def add_task(tasks):
+    task = input("Enter the task: ")
+    tasks.append(task)
+    print("Task added successfully!")
+    return tasks
 
-# Defining a function to remove tasks from the to-do list
-def remove_task():
-    # Show the to-do list
-    show_list()
-    # Open the file in read mode
-    with open("todo.txt", "r") as f:
-        # Read the file content
-        content = f.readlines()
-    # Ask user for the task number to be removed
-    task_num = int(input("Enter the task number to remove: "))
-    # Remove the task from the content list
-    content.pop(task_num-1)
-    # Open the file in write mode
-    with open("todo.txt", "w") as f:
-        # Write the updated content to the file
-        for task in content:
-            f.write(task)
-    # Print a confirmation message
+def remove_task(tasks):
+    display_tasks(tasks)
+    choice = int(input("Enter the number of the task to remove: ")) - 1
+    tasks.pop(choice)
     print("Task removed successfully!")
+    return tasks
 
-# Defining a function to clear the to-do list
-def clear_list():
-    # Ask for confirmation
-    confirm = input("Are you sure you want to clear the list? (y/n): ")
-    if confirm == "y":
-        # Open the file in write mode and write an empty string
-        with open("todo.txt", "w") as f:
-            f.write("")
-        # Print a confirmation message
-        print("List cleared successfully!")
-    else:
-        print("List not cleared.")
+# Load tasks from a file, if it exists
+filename = "tasks.txt"
+tasks = []
+if os.path.exists(filename):
+    with open(filename, "r") as f:
+        tasks = f.read().splitlines()
 
-# Main program loop
+# Start a loop that displays a menu and waits for user input
 while True:
-    # Clear the screen
-    os.system("cls")
-    # Show the menu
-    print("To-Do List Application\n")
+    print("\nMenu:\n")
     print("1. Show List")
     print("2. Add Task")
     print("3. Remove Task")
     print("4. Clear List")
     print("5. Exit")
-    # Ask for user input
-    choice = int(input("Enter your choice: "))
-    # Execute the chosen function
+    choice = int(input("\nEnter your choice: "))
+
+    # If the user chooses to show the list
     if choice == 1:
-        show_list()
-        input("Press Enter to continue...")
+        sorted_tasks = quicksort(tasks)
+        display_tasks(sorted_tasks)
+
+    # If the user chooses to add a task
     elif choice == 2:
-        add_task()
-        input("Press Enter to continue...")
+        tasks = add_task(tasks)
+
+    # If the user chooses to remove a task
     elif choice == 3:
-        remove_task()
-        input("Press Enter to continue...")
+        tasks = remove_task(tasks)
+
+    # If the user chooses to clear the list
     elif choice == 4:
-        clear_list()
-        input("Press Enter to continue...")
+        tasks.clear()
+        print("List cleared successfully!")
+
+    # If the user chooses to exit
     elif choice == 5:
-        # Exit the program loop
+        # Save tasks to a file
+        with open(filename, "w") as f:
+            for task in tasks:
+                f.write(task + "\n")
+        print("Goodbye!")
         break
+

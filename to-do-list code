@@ -1,0 +1,86 @@
+# Importing required libraries
+import os
+
+# Defining a function to show the to-do list
+def show_list():
+    # Open the file in read mode
+    with open("todo.txt", "r") as f:
+        # Read the file content
+        content = f.readlines()
+        # Print the content
+        for i in range(len(content)):
+            print(str(i+1) + ". " + content[i].strip())
+
+# Defining a function to add tasks to the to-do list
+def add_task():
+    # Open the file in append mode
+    with open("todo.txt", "a") as f:
+        # Ask user for the task to be added
+        task = input("Enter the task: ")
+        # Write the task to the file
+        f.write(task + "\n")
+        # Print a confirmation message
+        print("Task added successfully!")
+
+# Defining a function to remove tasks from the to-do list
+def remove_task():
+    # Show the to-do list
+    show_list()
+    # Open the file in read mode
+    with open("todo.txt", "r") as f:
+        # Read the file content
+        content = f.readlines()
+    # Ask user for the task number to be removed
+    task_num = int(input("Enter the task number to remove: "))
+    # Remove the task from the content list
+    content.pop(task_num-1)
+    # Open the file in write mode
+    with open("todo.txt", "w") as f:
+        # Write the updated content to the file
+        for task in content:
+            f.write(task)
+    # Print a confirmation message
+    print("Task removed successfully!")
+
+# Defining a function to clear the to-do list
+def clear_list():
+    # Ask for confirmation
+    confirm = input("Are you sure you want to clear the list? (y/n): ")
+    if confirm == "y":
+        # Open the file in write mode and write an empty string
+        with open("todo.txt", "w") as f:
+            f.write("")
+        # Print a confirmation message
+        print("List cleared successfully!")
+    else:
+        print("List not cleared.")
+
+# Main program loop
+while True:
+    # Clear the screen
+    os.system("cls")
+    # Show the menu
+    print("To-Do List Application\n")
+    print("1. Show List")
+    print("2. Add Task")
+    print("3. Remove Task")
+    print("4. Clear List")
+    print("5. Exit")
+    # Ask for user input
+    choice = int(input("Enter your choice: "))
+    # Execute the chosen function
+    if choice == 1:
+        show_list()
+        input("Press Enter to continue...")
+    elif choice == 2:
+        add_task()
+        input("Press Enter to continue...")
+    elif choice == 3:
+        remove_task()
+        input("Press Enter to continue...")
+    elif choice == 4:
+        clear_list()
+        input("Press Enter to continue...")
+    elif choice == 5:
+        # Exit the program loop
+        break

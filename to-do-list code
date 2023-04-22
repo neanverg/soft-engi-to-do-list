@@ -1,5 +1,5 @@
-import tkinter as tk
-import os
+import tkinter
+from tkinter import *
 
 def quicksort(items):
     if len(items) <= 1:
@@ -14,82 +14,91 @@ def quicksort(items):
             right.append(item)
     return quicksort(left) + [pivot] + quicksort(right)
 
-def display_tasks():
-    task_list.delete(0, tk.END)
-    sorted_tasks = quicksort(tasks)
-    for i in range(len(sorted_tasks)):
-        status = "Done" if sorted_tasks[i][1] else "Not done"
-        task_list.insert(tk.END, f"{i+1}. {sorted_tasks[i][0]} ({status})", "highlight")
+root = tkinter.Tk()
+root.title("DoListo")
+root.geometry("400x650+400+100")
+root.resizable(False, False)
 
-def add_task():
+task_list = []
+
+def addTask():
+    global task_list
     task = task_entry.get()
-    tasks.append([task, False])
-    display_tasks()
-    task_entry.delete(0, tk.END)
+    task_entry.delete(0, tkinter.END)
+    
+    if task:
+        with open("tasklist.txt", 'a') as taskfile:
+            taskfile.write(f"\n{task}")
+        task_list.append(task)
+        task_list = quicksort(task_list)
+        listbox.delete(0, tkinter.END)
+        for task in task_list:
+            listbox.insert(tkinter.END, task)
+        
+def deleteTask():
+    global task_list
+    task =str(listbox.get(ANCHOR))
+    if task in task_list:
+        task_list.remove(task)
+        with open("tasklist.txt",'w') as taskfie:
+            for task in task_list:
+                taskfie.write(task+"\n")
+                
+        listbox.delete( ANCHOR)
 
-def remove_task():
-    choice = task_list.curselection()
-    if len(choice) == 1:
-        tasks.pop(choice[0])
-        display_tasks()
+def openTaskFile():
+    with open("tasklist.txt","r") as taskfile:
+        tasks = taskfile.readlines()
 
-def mark_task_done():
-    choice = task_list.curselection()
-    if len(choice) == 1:
-        tasks[choice[0]][1] = True
-        display_tasks()
+        for task in tasks:
+            if task !='\n':
+                task_list.append(task)
+                listbox.insert(tkinter.END, task)
 
-def clear_list():
-    tasks.clear()
-    display_tasks()
+#icon        
+Image_icon = tkinter.PhotoImage(file="task.png")
+root.iconphoto(False, Image_icon)
 
-# Load tasks from a file, if it exists
-filename = "tasks.txt"
-tasks = []
-if os.path.exists(filename):
-    with open(filename, "r") as f:
-        tasks = f.read().splitlines()
+#top bar
+TopImage = tkinter.PhotoImage(file="topbar.png")
+tkinter.Label(root, image=TopImage).pack()
 
-# Create the main window
-root = tk.Tk()
-root.title("To-Do List")
-root.configure(bg="#d3d3d3")
+dockImage = tkinter.PhotoImage(file="dock.png")
+tkinter.Label(root, image=dockImage, bg="#32405b").place(x=30, y=25)
 
-# Create the task list
-task_list = tk.Listbox(root, width=50, bg="#f5f5f5", highlightthickness=0)
-task_list.pack(padx=10, pady=10)
+noteImage = tkinter.PhotoImage(file="task.png")
+tkinter.Label(root, image=noteImage, bg="#32405b").place(x=340, y=25)
 
-# Create the task entry
-task_entry = tk.Entry(root, width=50, bg="#f5f5f5")
-task_entry.pack(padx=10, pady=5)
+heading = tkinter.Label(root, text="ALL TASK", font="arial 20 bold", fg="white", bg="#32405b")
+heading.place(x=130, y=20)
 
-# Define the button color
-button_color = "#4caf50"
+#main
+frame = tkinter.Frame(root, width=400, height=50, bg="white")
+frame.place(x=0, y=180)
 
-# Create the add button
-add_button = tk.Button(root, text="Add Task", command=add_task, bg=button_color, fg="#fff")
-add_button.pack(padx=10, pady=5)
+task = tkinter.StringVar()
+task_entry = tkinter.Entry(frame, width=18, font="arial 20", bd=0)
+task_entry.place(x=10, y=7)
+task_entry.focus()
 
-# Create the remove button
-remove_button = tk.Button(root, text="Remove Task", command=remove_task, bg=button_color, fg="#fff")
-remove_button.pack(padx=10, pady=5)
+button = tkinter.Button(frame, text="ADD", font="arial 20 bold", width=6, bg="#5a95ff", fg="#fff", bd=0, command=addTask)
+button.place(x=300, y=0)
 
-# Create the mark done button
-mark_done_button = tk.Button(root, text="Mark Task as Done", command=mark_task_done, bg=button_color, fg="#fff")
-mark_done_button.pack(padx=10, pady=5)
+#listbox
+frame1 = tkinter.Frame(root, bd=3, width=700, height=280, bg="#32405b")
+frame1.pack(pady=(160,0))
 
-# Create the clear button
-clear_button = tk.Button(root, text="Clear List", command=clear_list, bg=button_color, fg="#fff")
-clear_button.pack(padx=10, pady=5)
+listbox = tkinter.Listbox(frame1, font=('arial', 12), width=40, height=16, bg="#32405b", fg="white", cursor="hand2", selectbackground="#5a95ff")
+listbox.pack(side=tkinter.LEFT, fill=tkinter.BOTH, padx=2)
+scrollbar = tkinter.Scrollbar(frame1)
+scrollbar.pack(side=tkinter.RIGHT, fill=tkinter.BOTH)
 
-# Create the exit button
-exit_button = tk.Button(root, text="Exit", command=root.destroy, bg=button_color, fg="#fff")
-exit_button.pack(padx=10, pady=10)
+listbox.config(yscrollcommand=scrollbar.set)
+scrollbar.config(command=listbox.yview)
 
-# Start the main loop
+#delete
+Delete_icon = tkinter.PhotoImage(file="delete.png")
+delete_button = tkinter.Button(root, image=Delete_icon, bd=0, command=lambda:listbox.delete(tkinter.ACTIVE))
+delete_button.pack(side=tkinter.BOTTOM, pady=13)
+
 root.mainloop()
-
-# Save tasks to a file
-with open(filename, "w") as f:
-    for task in tasks:
-        f.write(task + "\n")

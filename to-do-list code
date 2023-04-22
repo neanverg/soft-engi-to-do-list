@@ -14,6 +14,25 @@ def quicksort(items):
             right.append(item)
     return quicksort(left) + [pivot] + quicksort(right)
 
+def markAsDone():
+    global task_list
+    task = str(listbox.get(tkinter.ACTIVE))
+    if task in task_list:
+        task_list.remove(task)
+        with open("tasklist.txt",'w') as taskfie:
+            for task in task_list:
+                taskfie.write(task + "\n")
+        listbox.delete(tkinter.ACTIVE)
+        done_listbox.insert(tkinter.END, task)
+
+def clearAll():
+    global task_list
+    task_list = []
+    with open("tasklist.txt",'w') as taskfie:
+        taskfie.write("")
+    listbox.delete(0, tkinter.END)
+    done_listbox.delete(0, tkinter.END)
+    
 root = tkinter.Tk()
 root.title("DoListo")
 root.geometry("400x650+400+100")
@@ -102,5 +121,13 @@ scrollbar.config(command=listbox.yview)
 Delete_icon = tkinter.PhotoImage(file="delete.png")
 delete_button = tkinter.Button(root, image=Delete_icon, bd=0, command=lambda:listbox.delete(tkinter.ACTIVE))
 delete_button.pack(side=tkinter.BOTTOM, pady=13)
+
+#mark as done
+mark_button = tkinter.Button(root, text="Mark as done", font="arial 12", bg="#3232CD", fg="#fff", bd=0, command=markAsDone)
+mark_button.place(x=40, y=580)
+
+#clear all
+clear_button = tkinter.Button(root, text="Clear all", font="arial 12", bg="#3232CD", fg="#fff", bd=0, command=clearAll)
+clear_button.place(x=275, y=580)
 
 root.mainloop()

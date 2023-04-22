@@ -45,6 +45,7 @@ def deleteTask():
                 taskfie.write(task+"\n")
                 
         listbox.delete( ANCHOR)
+        
 
 def openTaskFile():
     with open("tasklist.txt","r") as taskfile:
@@ -69,7 +70,7 @@ tkinter.Label(root, image=dockImage, bg="#32405b").place(x=30, y=25)
 noteImage = tkinter.PhotoImage(file="task.png")
 tkinter.Label(root, image=noteImage, bg="#32405b").place(x=340, y=25)
 
-heading = tkinter.Label(root, text="ALL TASK", font="arial 20 bold", fg="white", bg="#32405b")
+heading = tkinter.Label(root, text="DoListo", font="arial 20 bold", fg="white", bg="#32405b")
 heading.place(x=130, y=20)
 
 #main
@@ -83,6 +84,7 @@ task_entry.focus()
 
 button = tkinter.Button(frame, text="ADD", font="arial 20 bold", width=6, bg="#5a95ff", fg="#fff", bd=0, command=addTask)
 button.place(x=300, y=0)
+
 
 #listbox
 frame1 = tkinter.Frame(root, bd=3, width=700, height=280, bg="#32405b")

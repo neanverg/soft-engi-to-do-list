@@ -1,5 +1,6 @@
-# Importing required libraries
+import tkinter as tk
 import os
+
 def quicksort(items):
     if len(items) <= 1:
         return items
@@ -13,23 +14,34 @@ def quicksort(items):
             right.append(item)
     return quicksort(left) + [pivot] + quicksort(right)
 
-def display_tasks(tasks):
-    print("\nTo-Do List:\n")
-    for i in range(len(tasks)):
-        print(f"{i+1}. {tasks[i]}")
+def display_tasks():
+    task_list.delete(0, tk.END)
+    sorted_tasks = quicksort(tasks)
+    for i in range(len(sorted_tasks)):
+        status = "Done" if sorted_tasks[i][1] else "Not done"
+        task_list.insert(tk.END, f"{i+1}. {sorted_tasks[i][0]} ({status})", "highlight")
 
-def add_task(tasks):
-    task = input("Enter the task: ")
-    tasks.append(task)
-    print("Task added successfully!")
-    return tasks
+def add_task():
+    task = task_entry.get()
+    tasks.append([task, False])
+    display_tasks()
+    task_entry.delete(0, tk.END)
 
-def remove_task(tasks):
-    display_tasks(tasks)
-    choice = int(input("Enter the number of the task to remove: ")) - 1
-    tasks.pop(choice)
-    print("Task removed successfully!")
-    return tasks
+def remove_task():
+    choice = task_list.curselection()
+    if len(choice) == 1:
+        tasks.pop(choice[0])
+        display_tasks()
+
+def mark_task_done():
+    choice = task_list.curselection()
+    if len(choice) == 1:
+        tasks[choice[0]][1] = True
+        display_tasks()
+
+def clear_list():
+    tasks.clear()
+    display_tasks()
 
 # Load tasks from a file, if it exists
 filename = "tasks.txt"
@@ -38,40 +50,46 @@ if os.path.exists(filename):
     with open(filename, "r") as f:
         tasks = f.read().splitlines()
 
-# Start a loop that displays a menu and waits for user input
-while True:
-    print("\nMenu:\n")
-    print("1. Show List")
-    print("2. Add Task")
-    print("3. Remove Task")
-    print("4. Clear List")
-    print("5. Exit")
-    choice = int(input("\nEnter your choice: "))
+# Create the main window
+root = tk.Tk()
+root.title("To-Do List")
+root.configure(bg="#d3d3d3")
 
-    # If the user chooses to show the list
-    if choice == 1:
-        sorted_tasks = quicksort(tasks)
-        display_tasks(sorted_tasks)
+# Create the task list
+task_list = tk.Listbox(root, width=50, bg="#f5f5f5", highlightthickness=0)
+task_list.pack(padx=10, pady=10)
 
-    # If the user chooses to add a task
-    elif choice == 2:
-        tasks = add_task(tasks)
+# Create the task entry
+task_entry = tk.Entry(root, width=50, bg="#f5f5f5")
+task_entry.pack(padx=10, pady=5)
 
-    # If the user chooses to remove a task
-    elif choice == 3:
-        tasks = remove_task(tasks)
+# Define the button color
+button_color = "#4caf50"
 
-    # If the user chooses to clear the list
-    elif choice == 4:
-        tasks.clear()
-        print("List cleared successfully!")
+# Create the add button
+add_button = tk.Button(root, text="Add Task", command=add_task, bg=button_color, fg="#fff")
+add_button.pack(padx=10, pady=5)
 
-    # If the user chooses to exit
-    elif choice == 5:
-        # Save tasks to a file
-        with open(filename, "w") as f:
-            for task in tasks:
-                f.write(task + "\n")
-        print("Goodbye!")
-        break
+# Create the remove button
+remove_button = tk.Button(root, text="Remove Task", command=remove_task, bg=button_color, fg="#fff")
+remove_button.pack(padx=10, pady=5)
 
+# Create the mark done button
+mark_done_button = tk.Button(root, text="Mark Task as Done", command=mark_task_done, bg=button_color, fg="#fff")
+mark_done_button.pack(padx=10, pady=5)
+
+# Create the clear button
+clear_button = tk.Button(root, text="Clear List", command=clear_list, bg=button_color, fg="#fff")
+clear_button.pack(padx=10, pady=5)
+
+# Create the exit button
+exit_button = tk.Button(root, text="Exit", command=root.destroy, bg=button_color, fg="#fff")
+exit_button.pack(padx=10, pady=10)
+
+# Start the main loop
+root.mainloop()
+
+# Save tasks to a file
+with open(filename, "w") as f:
+    for task in tasks:
+        f.write(task + "\n")

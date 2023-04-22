@@ -1,0 +1,92 @@
+import tkinter as tk
+import os
+
+def quicksort(items):
+    if len(items) <= 1:
+        return items
+    pivot = items[0]
+    left = []
+    right = []
+    for item in items[1:]:
+        if item < pivot:
+            left.append(item)
+        else:
+            right.append(item)
+    return quicksort(left) + [pivot] + quicksort(right)
+
+def display_tasks():
+    task_list.delete(0, tk.END)
+    sorted_tasks = quicksort(tasks)
+    for i in range(len(sorted_tasks)):
+        status = "Done" if sorted_tasks[i][1] else "Not done"
+        task_list.insert(tk.END, f"{i+1}. {sorted_tasks[i][0]} ({status})")
+
+def add_task():
+    task = task_entry.get()
+    tasks.append([task, False])
+    display_tasks()
+    task_entry.delete(0, tk.END)
+
+def remove_task():
+    choice = task_list.curselection()
+    if len(choice) == 1:
+        tasks.pop(choice[0])
+        display_tasks()
+
+def mark_task_done():
+    choice = task_list.curselection()
+    if len(choice) == 1:
+        tasks[choice[0]][1] = True
+        display_tasks()
+
+def clear_list():
+    tasks.clear()
+    display_tasks()
+
+# Load tasks from a file, if it exists
+filename = "tasks.txt"
+tasks = []
+if os.path.exists(filename):
+    with open(filename, "r") as f:
+        tasks = f.read().splitlines()
+
+# Create the main window
+root = tk.Tk()
+root.title("To-Do List")
+
+# Create the task list
+task_list = tk.Listbox(root, width=50)
+task_list.pack(padx=10, pady=10)
+display_tasks()
+
+# Create the task entry
+task_entry = tk.Entry(root, width=50)
+task_entry.pack(padx=10, pady=5)
+
+# Create the add button
+add_button = tk.Button(root, text="Add Task", command=add_task)
+add_button.pack(padx=10, pady=5)
+
+# Create the remove button
+remove_button = tk.Button(root, text="Remove Task", command=remove_task)
+remove_button.pack(padx=10, pady=5)
+
+# Create the mark done button
+mark_done_button = tk.Button(root, text="Mark Task as Done", command=mark_task_done)
+mark_done_button.pack(padx=10, pady=5)
+
+# Create the clear button
+clear_button = tk.Button(root, text="Clear List", command=clear_list)
+clear_button.pack(padx=10, pady=5)
+
+# Create the exit button
+exit_button = tk.Button(root, text="Exit", command=root.destroy)
+exit_button.pack(padx=10, pady=10)
+
+# Start the main loop
+root.mainloop()
+
+# Save tasks to a file
+with open(filename, "w") as f:
+    for task in tasks:
+        f.write(task + "\n")

@@ -16,15 +16,16 @@ def quicksort(items):
 
 def markAsDone():
     global task_list
-    task = str(listbox.get(tkinter.ACTIVE))
-    if task in task_list:
-        task_list.remove(task)
-        with open("tasklist.txt",'w') as taskfie:
-            for task in task_list:
-                taskfie.write(task + "\n")
+    task_str = listbox.get(tkinter.ACTIVE)
+    task, due_date = task_str.split(" - ")
+    if task in [t[0] for t in task_list]:
+        task_list = [(t, d) for t, d in task_list if t != task]
+        with open("tasklist.txt", 'w') as taskfie:
+            for t, d in task_list:
+                taskfie.write(f"{t} - {d}\n")
         listbox.delete(tkinter.ACTIVE)
-        done_listbox.insert(tkinter.END, task)
-
+        done_listbox.insert(tkinter.END, task_str)
+        
 def clearAll():
     global task_list
     task_list = []
@@ -32,7 +33,7 @@ def clearAll():
         taskfie.write("")
     listbox.delete(0, tkinter.END)
     done_listbox.delete(0, tkinter.END)
-    
+
 root = tkinter.Tk()
 root.title("DoListo")
 root.geometry("400x650+400+100")
@@ -43,16 +44,19 @@ task_list = []
 def addTask():
     global task_list
     task = task_entry.get()
+    due_date = due_date_entry.get()
     task_entry.delete(0, tkinter.END)
-    
-    if task:
+    due_date_entry.delete(0, tkinter.END)
+
+    if task and due_date:
         with open("tasklist.txt", 'a') as taskfile:
-            taskfile.write(f"\n{task}")
-        task_list.append(task)
-        task_list = quicksort(task_list)
+            taskfile.write(f"\n{task} - {due_date}")
+        task_list.append((task, due_date))
+        task_list = sorted(task_list, key=lambda x: x[1])
         listbox.delete(0, tkinter.END)
-        for task in task_list:
-            listbox.insert(tkinter.END, task)
+        for task, due_date in task_list:
+            listbox.insert(tkinter.END, f"{task} - {due_date}")
+
         
 def deleteTask():
     global task_list
@@ -64,7 +68,6 @@ def deleteTask():
                 taskfie.write(task+"\n")
                 
         listbox.delete( ANCHOR)
-        
 
 def openTaskFile():
     with open("tasklist.txt","r") as taskfile:
@@ -93,23 +96,27 @@ heading = tkinter.Label(root, text="DoListo", font="arial 20 bold", fg="white", 
 heading.place(x=130, y=20)
 
 #main
-frame = tkinter.Frame(root, width=400, height=50, bg="white")
-frame.place(x=0, y=180)
+frame = tkinter.Frame(root, width=400, height=90, bg="#2F2F4F")
+frame.place(x=0, y=150)
 
 task = tkinter.StringVar()
 task_entry = tkinter.Entry(frame, width=18, font="arial 20", bd=0)
 task_entry.place(x=10, y=7)
 task_entry.focus()
 
-button = tkinter.Button(frame, text="ADD", font="arial 20 bold", width=6, bg="#5a95ff", fg="#fff", bd=0, command=addTask)
+button = tkinter.Button(frame, text="ADD", font="arial 20 bold", width=6, bg="#2F2F4F", fg="#fff", bd=0, command=addTask)
 button.place(x=300, y=0)
 
-
 #listbox
+due_date_entry = tkinter.Entry(frame, width=10, font="arial 20", bd=0)
+due_date_entry.place(x=130, y=45)
+due_date_entry.focus()
+tkinter.Label(frame, text="Due date:", font="arial 12", fg="white", bg="#2F2F4F").place(x=30, y=50)
+
 frame1 = tkinter.Frame(root, bd=3, width=700, height=280, bg="#32405b")
 frame1.pack(pady=(160,0))
-
-listbox = tkinter.Listbox(frame1, font=('arial', 12), width=40, height=16, bg="#32405b", fg="white", cursor="hand2", selectbackground="#5a95ff")
+##32405b
+listbox = tkinter.Listbox(frame1, font=('arial', 12), width=40, height=16, bg="white", fg="black", cursor="hand2", selectbackground="#5a95ff")
 listbox.pack(side=tkinter.LEFT, fill=tkinter.BOTH, padx=2)
 scrollbar = tkinter.Scrollbar(frame1)
 scrollbar.pack(side=tkinter.RIGHT, fill=tkinter.BOTH)
@@ -123,11 +130,11 @@ delete_button = tkinter.Button(root, image=Delete_icon, bd=0, command=lambda:lis
 delete_button.pack(side=tkinter.BOTTOM, pady=13)
 
 #mark as done
-mark_button = tkinter.Button(root, text="Mark as done", font="arial 12", bg="#3232CD", fg="#fff", bd=0, command=markAsDone)
+mark_button = tkinter.Button(root, text="Mark as done", font="arial 12", bg="#2F2F4F", fg="#fff", bd=0, command=markAsDone)
 mark_button.place(x=40, y=580)
 
 #clear all
-clear_button = tkinter.Button(root, text="Clear all", font="arial 12", bg="#3232CD", fg="#fff", bd=0, command=clearAll)
+clear_button = tkinter.Button(root, text="Clear all", font="arial 12", bg="#2F2F4F", fg="#fff", bd=0, command=clearAll)
 clear_button.place(x=275, y=580)
 
 root.mainloop()

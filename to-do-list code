@@ -1,7 +1,15 @@
 import tkinter
 from tkinter import *
+import tkinter.simpledialog
 
-def quicksort(items):
+def authenticate():
+    password = tkinter.simpledialog.askstring("Password", "Enter password:", show="*")
+    return password == "mypassword"
+
+if authenticate():
+    # continue with the program
+
+   def quicksort(items):
     if len(items) <= 1:
         return items
     pivot = items[0]
@@ -33,6 +41,11 @@ def clearAll():
         taskfie.write("")
     listbox.delete(0, tkinter.END)
     done_listbox.delete(0, tkinter.END)
+    
+root = Tk()
+root.title("DoListo")
+root.geometry("400x650+400+100")
+root.resizable(False, False)
 
 root = tkinter.Tk()
 root.title("DoListo")
